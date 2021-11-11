@@ -4,6 +4,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask, Response, request
 from slackeventsapi import SlackEventAdapter
+from twitter import get_my_tweets,get_python_tweets
+import asyncio,datetime
+
 
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
@@ -14,59 +17,8 @@ slack_event_adapter = SlackEventAdapter(os.environ['SIGNING_SECRET'],'/slack/eve
 client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
 BOT_ID = client.api_call("auth.test")['user_id']
 
-import asyncio,datetime
 
 
-
-async def some_function():
-    date = datetime.datetime.now()
-
-    client.chat_postMessage(channel='#api', text = f'your Hourly reminder at {date}')
-
-    # asynchronous sleep of 1 second
-
-async def forever():
-    while True:
-        await asyncio.sleep(10)
-
-        await some_function()
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(forever())
-
-
-
-
-
-
-# async def hour_reminder():
-#     print('Hello')
-#     date = datetime.datetime.now()
-
-#     client.chat_postMessage(channel='#api', text = f'your Hourly reminder at {date}')
-
-#     # asynchronous sleep of 1 second
-#     await asyncio.sleep(10)
-#     print('World')
-
-# loop = asyncio.get_event_loop()
-# # we run our coroutine in the event loop until it is completed
-# loop.run_forever(hour_reminder())
-# # close the event loop
-# # loop.close()
-
-
-
-# import sched, time, datetime
-# s = sched.scheduler(time.time, time.sleep)
-# def do_something(sc): 
-#     print("Doing stuff...")
-#     date = datetime.datetime.now()
-#     client.chat_postMessage(channel='#api', text = f'your Hourly reminder at {date}')
-#     s.enter(60, 1, do_something, (sc,))
-
-# s.enter(60, 1, do_something, (s,))
-# s.run()
 
 message_counts = {}
 
@@ -94,8 +46,41 @@ def message_count():
     client.chat_postMessage(channel=channel_id, text = f'message: {message_count}')
     return Response(), 200
 
+@app.route('/python-tweets', methods =['POST'])
+def python_tweets():
 
+    data = request.form
+    channel_id = data.get('channel_id')
+    tweets = get_python_tweets()
 
+    for key , values in tweets.items():
+        if values == []:
+            1
+        else:
+            for value in values:
+                for k, v in value.items():
+                    print(f'keys : {key} , value {k}')
+                    client.chat_postMessage(channel=channel_id, text = f'{key}s tweets   {k}, time {v}')
+    client.chat_postMessage(channel=channel_id, text = f'message: {message_count}')
+    return Response(), 200
+
+@app.route('/my-tweets', methods =['POST'])
+def my_tweets():
+
+    data = request.form
+    channel_id = data.get('channel_id')
+    tweets = get_python_tweets()
+
+    for key , values in tweets.items():
+        if values == []:
+            1
+        else:
+            for value in values:
+                for k, v in value.items():
+                    print(f'keys : {key} , value {k}')
+                    client.chat_postMessage(channel=channel_id, text = f'{key}s tweets   {k}')
+    client.chat_postMessage(channel=channel_id, text = f'message: {message_count}')
+    return Response(), 200
 
 
 

@@ -3,6 +3,7 @@ import os
 import json
 from pathlib import Path
 from dotenv import load_dotenv
+import datetime
 
 # To set your enviornment variables in your terminal run the following line:
 # export 'CONSUMER_KEY'='<your_consumer_key>'
@@ -22,8 +23,10 @@ access_token_secret = os.environ.get("ACCESS_TOKEN_SECRET")
 # Or you can add to up to 100 comma-separated IDs
 # id = "745911914"
 # params = {"ids": id, "tweet.fields": "created_at"}
-fields = "created_at,description"
-params = {"usernames": "PythonWeekly,fullstackpython,realpython", "user.fields": fields}
+
+# fields = "created_at,description"
+# params = {"usernames": "PythonWeekly,fullstackpython,realpython", "user.fields": fields}
+
 # Tweet fields are adjustable.
 # Options include:
 # attachments, author_id, context_annotations,
@@ -72,10 +75,10 @@ params = {"usernames": "PythonWeekly,fullstackpython,realpython", "user.fields":
 # access_token = os.environ.get("ACCESS_TOKEN")
 # access_token_secret = os.environ.get("ACCESS_TOKEN_SECRET")
 
-def create_url():
-    # Replace with user ID below
-    user_id = 2244994945
-    return "https://api.twitter.com/2/users/{}/tweets".format(user_id)
+# def create_url():
+#     # Replace with user ID below
+#     user_id = 2244994945
+#     return "https://api.twitter.com/2/users/{}/tweets".format(user_id)
 
 
 def get_params():
@@ -102,16 +105,93 @@ oauth = OAuth1Session(
 #     "https://api.twitter.com/2/users/by", params=params
 # )
 
-response = oauth.get(
-    create_url(), params=get_params()
-)
+# response = oauth.get(
+#     create_url(), params=get_params()
+# )
 
 
-if response.status_code != 200:
-    raise Exception(
-        "Request returned an error: {} {}".format(response.status_code, response.text)
+# if response.status_code != 200:
+#     raise Exception(
+#         "Request returned an error: {} {}".format(response.status_code, response.text)
+#     )
+
+# print("Response code: {}".format(response.status_code))
+# json_response = response.json()
+# # print(json.dumps(json_response, indent=4, sort_keys=True))
+# a = json_response['data'][0]['text']
+# b = json_response['data'][0]['created_at'].split('T')
+# c = b[1].split('.')
+# c = c[0].split(':')
+# b = b[0].split('-')
+# b = datetime.datetime(int(b[0]),int(b[1]),int(b[2]),int(c[0]),int(c[1]),int(c[2]))
+# e = [a,b]
+# print(e)
+
+def get_python_tweets():
+    user_ids ={'Python Weekly ':373620985, 'Real Python' : 745911914, 'Full Stack Python' :  2996502625}
+    fun = {}
+    for key , value in user_ids.items():
+        url = "https://api.twitter.com/2/users/{}/tweets".format(value)
+        response = oauth.get(
+        url, params=get_params()
+        )
+        if response.status_code != 200:
+            raise Exception(
+                "Request returned an error: {} {}".format(response.status_code, response.text)
+            )
+        # print("Response code: {}".format(response.status_code))
+        json_response = response.json()
+        fun[key] = []
+        for x in range(len(json_response['data'])):
+            a = json_response['data'][x]['text']
+            b = json_response['data'][x]['created_at'].split('T')
+            c = b[1].split('.')
+            c = c[0].split(':')
+            b = b[0].split('-')
+            b = datetime.datetime(int(b[0]),int(b[1]),int(b[2]),int(c[0]),int(c[1]),int(c[2]))
+            now = datetime.datetime.now()
+            hours = 5
+            hours_sub = datetime.timedelta(hours = hours)
+            future_date_and_time = now - hours_sub
+            if b > future_date_and_time:
+                e = {a:b}
+                # print(e)
+                fun[key].append(e)
+    print(fun)    
+ 
+    return fun            
+print('HIiIIIIIII')
+get_python_tweets()
+
+
+def get_my_tweets():
+    value = 1458580045702873089
+    url = "https://api.twitter.com/2/users/{}/tweets".format(value)
+    response = oauth.get(
+    url, params=get_params()
     )
-
-print("Response code: {}".format(response.status_code))
-json_response = response.json()
-print(json.dumps(json_response, indent=4, sort_keys=True))
+    if response.status_code != 200:
+        raise Exception(
+            "Request returned an error: {} {}".format(response.status_code, response.text)
+        )
+    # print("Response code: {}".format(response.status_code))
+    json_response = response.json()
+    lst = []
+    for x in range(len(json_response['data'])):
+        a = json_response['data'][x]['text']
+        b = json_response['data'][x]['created_at'].split('T')
+        c = b[1].split('.')
+        c = c[0].split(':')
+        b = b[0].split('-')
+        b = datetime.datetime(int(b[0]),int(b[1]),int(b[2]),int(c[0]),int(c[1]),int(c[2]))
+        now = datetime.datetime.now()
+        hours = 10
+        hours_sub = datetime.timedelta(hours = hours)
+        future_date_and_time = now - hours_sub
+        if b > future_date_and_time:
+            e = [a,b]
+            lst.append(e)
+            # print(e)
+            
+    print(lst)    
+# get_my_tweets()
