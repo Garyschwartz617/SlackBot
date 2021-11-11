@@ -161,7 +161,7 @@ def get_python_tweets():
  
     return fun            
 print('HIiIIIIIII')
-get_python_tweets()
+# get_python_tweets()
 
 
 def get_my_tweets():
@@ -184,14 +184,8 @@ def get_my_tweets():
         c = c[0].split(':')
         b = b[0].split('-')
         b = datetime.datetime(int(b[0]),int(b[1]),int(b[2]),int(c[0]),int(c[1]),int(c[2]))
-        now = datetime.datetime.now()
-        hours = 10
-        hours_sub = datetime.timedelta(hours = hours)
-        future_date_and_time = now - hours_sub
-        if b > future_date_and_time:
-            e = [a,b]
-            lst.append(e)
+        e = [a,b]
+        lst.append(e)
             # print(e)
-            
-    print(lst)    
+    return lst        
 # get_my_tweets()
