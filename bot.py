@@ -31,7 +31,6 @@ while a:
 
 
     # allows us to count messages per user
-    message_counts = {}
 
     @slack_event_adapter.on('message')
     def message(payload):
@@ -44,13 +43,6 @@ while a:
             new_tweet(twt)
             client.chat_postMessage(channel=channel_id, text= 'Your tweet has been tweeted')
 
-        if user_id != BOT_ID:
-            if user_id in message_counts:
-                message_counts[user_id] += 1
-            else:
-                message_counts[user_id] = 1
-
-            # client.chat_postMessage(channel=channel_id, text= text)
 
     # lets us print out the hour message whenever we would like
     @app.route('/hour-message', methods =['POST'])
@@ -60,16 +52,6 @@ while a:
         client.chat_postMessage(channel='#api', text = f'Your hourly reminder At {date}')    
         return Response(), 200
         
-    # tells us how many messages we have sent out
-    @app.route('/message-count', methods =['POST'])
-    def message_count():
-        data = request.form
-        user_id = data.get('user_id')
-        channel_id = data.get('channel_id')
-        message_count = message_counts.get(user_id,0)
-        client.chat_postMessage(channel=channel_id, text = f'message: {message_count}')
-        return Response(), 200
-
     # Sends us all tweets from these endpoints if we request them
     @app.route('/python-tweets', methods =['POST'])
     def python_tweets():
