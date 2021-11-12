@@ -45,11 +45,11 @@ def get_url(value):
 
 
 # gets all the python tweets from the past 5 hours, parses the data so we can keep track of date efficently in datetime, and returns the text and date
-def get_python_tweets():
-    user_ids ={'Python Weekly ':373620985, 'Real Python' : 745911914, 'Full Stack Python' :  2996502625}
+def get_language_tweets(user_ids):
     fun = {}
     for key , value in user_ids.items():
         json_response = get_url(value)
+
         fun[key] = []
         for x in range(len(json_response['data'])):
             a = json_response['data'][x]['text']
@@ -59,15 +59,17 @@ def get_python_tweets():
             b = b[0].split('-')
             b = datetime.datetime(int(b[0]),int(b[1]),int(b[2]),int(c[0]),int(c[1]),int(c[2]))
             now = datetime.datetime.now()
-            hours = 5
+            hours = 12
+
             hours_sub = datetime.timedelta(hours = hours)
             future_date_and_time = now - hours_sub
             if b > future_date_and_time:
                 e = {a:b}
                 # print(e)
-                fun[key].append(e) 
+                fun[key].append(e)
+ 
     return fun   
-             
+
 # gets all of my tweets with their dates
 def get_my_tweets():
     value = 1458580045702873089
@@ -83,3 +85,22 @@ def get_my_tweets():
         e = [a,b]
         lst.append(e)
     return lst        
+
+
+def new_tweet(txt):
+    payload = {"text": txt}
+    response = oauth.post(
+        "https://api.twitter.com/2/tweets",
+        json=payload,
+    )
+
+    if response.status_code != 201:
+        raise Exception(
+            "Request returned an error: {} {}".format(response.status_code, response.text)
+        )
+
+    print("Response code: {}".format(response.status_code))
+
+    # Saving the response as JSON
+    json_response = response.json()
+    print(json.dumps(json_response, indent=4, sort_keys=True))
