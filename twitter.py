@@ -44,7 +44,7 @@ def get_url(value):
 
 
 
-# gets all the python tweets from the past 5 hours, parses the data so we can keep track of date efficently in datetime, and returns the text and date
+# gets all the python tweets from the past X hours, parses the data so we can keep track of date efficently in datetime, and returns the text and date
 def get_language_tweets(user_ids):
     fun = {}
     for key , value in user_ids.items():
@@ -67,6 +67,7 @@ def get_language_tweets(user_ids):
                 e = {a:b}
                 # print(e)
                 fun[key].append(e)
+                print('hi')
  
     return fun   
 
@@ -86,7 +87,7 @@ def get_my_tweets():
         lst.append(e)
     return lst        
 
-
+# Posts a new tweet for us
 def new_tweet(txt):
     payload = {"text": txt}
     response = oauth.post(
@@ -99,8 +100,5 @@ def new_tweet(txt):
             "Request returned an error: {} {}".format(response.status_code, response.text)
         )
 
-    print("Response code: {}".format(response.status_code))
-
     # Saving the response as JSON
     json_response = response.json()
-    print(json.dumps(json_response, indent=4, sort_keys=True))

@@ -31,12 +31,10 @@ while a:
 
 
     # allows us to count messages per user
-
     @slack_event_adapter.on('message')
     def message(payload):
         event = payload.get('event', {})
         channel_id = event.get('channel')
-        user_id = event.get('user')
         text = event.get('text')
         if text.startswith('Tweet this:'):
             twt =text.replace('Tweet this:', '')
@@ -56,20 +54,10 @@ while a:
     @app.route('/python-tweets', methods =['POST'])
     def python_tweets():
         language_ids ={'Python Weekly':373620985, 'Real Python' : 745911914, 'Full Stack Python' :  2996502625}
-
         data = request.form
         channel_id = data.get('channel_id')
-        tweets = get_language_tweets(language_ids)
-
-        for key , values in tweets.items():
-            if values == []:
-                1
-            else:
-                for value in values:
-                    for k, v in value.items():
-                        client.chat_postMessage(channel=channel_id, text = f'{key}s tweets   {k}, time {v}')
+        find_tweets(language_ids, channel_id)
         return Response(), 200
-
 
     # Sends all my new tweets out, and keeps track of my oldest tweet
     time_since  = {'time' :datetime.datetime(2000,1,1,0,0,0)}
@@ -96,19 +84,18 @@ while a:
         data = request.form
         channel_id = data.get('channel_id')
         text = data.get('text')
-
-        if text.lower() == 'python':
-            language_ids ={'Python Weekly':373620985, 'Real Python' : 745911914, 'Full Stack Python' :  2996502625}
-        elif text.lower() == 'javascript':
-            language_ids ={'Java Script':539345368, 'JavaScript Daily' : 459275531, 'RunJS_App' :  1102660016660713472}
-        elif text.lower() == 'c++':
-            language_ids ={'Standard C++': 547159483, 'Hacking C ++' : 1235847275840016384, 'C++' :  77373122}
-        elif text.lower() == 'csharp':
-            language_ids ={'CSharpStack':1710706759}
+        languages ={'python' : {'Python Weekly':373620985, 'Real Python' : 745911914, 'Full Stack Python' :  2996502625}, 'javascript' : {'Java Script':539345368, 'JavaScript Daily' : 459275531, 'RunJS_App' :  1102660016660713472}, 'c++' : {'Standard C++' : 547159483, 'Hacking C ++' : 1235847275840016384, 'C++' :  77373122}, 'csharp' : { 'CSharpStack' : 1710706759}
+        }
+        if text.lower() in languages.keys():
+            language_ids = languages[text.lower()]
         else:
             client.chat_postMessage(channel=channel_id, text = f'Sorry We dont have that language yet! stay Tuned!')
             return Response(), 200  
+        find_tweets(language_ids, channel_id)
+        return Response(), 200
 
+    # loops f=though all languages then all Twitterhandlers to post tweets
+    def find_tweets(language_ids, channel_id):
         tweets = get_language_tweets(language_ids)
         for key , values in tweets.items():
             if values == []:
@@ -118,9 +105,6 @@ while a:
                 for value in values:
                     for k, v in value.items():
                         client.chat_postMessage(channel=channel_id, text = f'{key}s Tweets:   {k}, time {v}')
-        print(text)
-        return Response(), 200
-
 
     time.sleep(1)
     if __name__ == "__main__":
